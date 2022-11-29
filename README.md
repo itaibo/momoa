@@ -27,9 +27,9 @@ console.log(multilineString);
 Output would be:
 
 ```txt
-{ test: 1 }
-{ test: 2 }
-{ test: 3 }
+{"test":1}
+{"test":2}
+{"test":3}
 
 ```
 
