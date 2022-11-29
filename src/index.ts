@@ -1,54 +1,31 @@
-import { gzip as nodeGzip } from 'node-gzip';
+// @ts-ignore
+import proxymise from 'proxymise';
+import { gzip as nodeGzip, ungzip as nodeUngzip } from 'node-gzip';
 
 export interface MomoaInterface {
-	json: Array<Object>;
-	output?: String | Buffer;
-	enlist: Function;
-	gzip: Function;
+	_json?: Array<Object>;
+	_output?: String | Buffer;
+
+	enlist?: Function;
+	unlist?: Function;
+	gzip?: Function;
+	ungzip?: Function;
+
 	end: Function;
+	json: Function;
+	output: Function;
 };
 
-export default class Momoa {
-	json: Array<Object>;
-	output?: String | Buffer;
-	_queue: any;
-	_paused: Boolean;
+class Momoa {
+	_json: Array<Object>;
+	_output?: String | Buffer;
 
-	constructor (json: Array<Object>) {
-		this.json = json;
-		this.output = undefined;
-		this._queue = []
-		this._paused = false;
-	};
+	constructor () {};
 
-	async executeTask(task: {[key: string]: any}) {
-		// @ts-ignore
-		return this[task.fn].apply(this, task.args);
-	}
+	enlist = async (json?: Array<Object>): Promise<MomoaInterface> => {
+		json = json || this._json;
 
-	async executeQueue() {
-		if (this._paused) return;
-		
-		this._paused = true;
-
-		while (this._queue.length) {
-			const task = this._queue[0];
-			this._paused = true;
-			await this.executeTask(task);
-			this._queue.shift();
-		}
-
-		this._paused = false;
-	}
-
-	enqueueTask(fnReference: String) {
-		this._queue.push({ fn: fnReference });
-		this.executeQueue();
-		return this;
-	} 
-
-	enlist(json?: Array<Object>): MomoaInterface {
-		json = json || this.json;
+		if (!json) throw new Error('Missing input');
 
 		let output = '';
 
@@ -56,28 +33,80 @@ export default class Momoa {
 			output += JSON.stringify(item) + "\r\n";
 		}
 
-		this.json = json;
-		this.output = output;
+		this._json = json;
+		this._output = output;
 
 		return this;
 	};
 
-	gzip() {
-		return this.enqueueTask('_gzip');
-	};
-
-	_gzip(): MomoaInterface  {
-		if (!this.output) throw new Error('Missing output');
+	unlist = async (string?: String): Promise<MomoaInterface> => {
 		// @ts-ignore
-		const compressed = nodeGzip(this.output);
+		string = string || this._output;
+
+		if (!string) throw new Error('Missing input');
 
 		// @ts-ignore
-		this.output = compressed;
+		const lines = string.split("\r\n");
+
+		const jsonArray: Array<Object> = [];
+
+		for (let line of lines) {
+			line = line.trim();
+
+			if (!line) continue;
+
+			const jsonObject = JSON.parse(line);
+
+			jsonArray.push(jsonObject);
+		}
+
+		this._json = jsonArray;
+		this._output = string;
 
 		return this;
 	};
 
-	end():String | Buffer | undefined {
-		return this.output;
+	gzip = async (string?: String): Promise<MomoaInterface> => {
+		// @ts-ignore
+		string = string || this._output;
+
+		if (!string) throw new Error('Missing input');
+
+		// @ts-ignore
+		const compressed = await nodeGzip(string);
+
+		// @ts-ignore
+		this._output = compressed;
+
+		return this;
+	};
+
+	ungzip = async (buffer?: Buffer): Promise<MomoaInterface> => {
+		// @ts-ignore
+		buffer = buffer || this._output;
+
+		if (!buffer) throw new Error('Missing input');
+
+		// @ts-ignore
+		const uncompressed = await nodeUngzip(buffer);
+		const string = uncompressed.toString();
+
+		this._output = string;
+
+		return this;
+	};
+
+	end(): String | Buffer | undefined {
+		return this._output;
+	}
+
+	json(): Array<Object> {
+		return this._json;
+	}
+
+	output(): String | Buffer | undefined {
+		return this._output;
 	}
 };
+
+export default proxymise(Momoa);
