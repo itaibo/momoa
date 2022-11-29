@@ -1,6 +1,7 @@
 // @ts-ignore
 import proxymise from 'proxymise';
-import { gzip as nodeGzip, ungzip as nodeUngzip } from 'node-gzip';
+import node_gzip from 'node-gzip';
+const { gzip: nodeGzip, ungzip: nodeUngzip } = node_gzip;
 
 export interface MomoaInterface {
 	_json?: Array<Object>;
