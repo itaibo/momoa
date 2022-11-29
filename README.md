@@ -9,16 +9,17 @@ Install the package:
 npm install momoa
 ```
 
+Then import it in your application and start an instance
+```js
+import Momoa from 'momoa';
+const momoa = new Momoa();
+```
+
 ### Enlist JSON Array
 
 ```js
-import Momoa from 'momoa';
-
-const momoa = new Momoa();
 const multilineString = await momoa.enlist([{ test: 1 }, { test: 2 }, { test: 3 }]).output();
-
 console.log(multilineString);
-
 ```
 
 Output would be:
@@ -33,20 +34,15 @@ Output would be:
 ### Unlist JSON String
 
 ```js
-import Momoa from 'momoa';
-
-const momoa = new Momoa();
 const array = await momoa.unlist("{\"test\":1}").json();
-
 console.log(array);
-
 ```
 
 Output would be:
 
 ```json
 [
-	{ "test": 1 }
+  { "test": 1 }
 ]
 ```
 
@@ -54,13 +50,8 @@ Output would be:
 ### Gzip results
 
 ```js
-import Momoa from 'momoa';
-
-const momoa = new Momoa();
 const gzipped = await momoa.enlist([{ test: 1 }, { test: 2 }, { test: 3 }]).gzip().end();
-
 console.log(gzipped);
-
 ```
 
 Output would be:
@@ -72,13 +63,8 @@ Output would be:
 ### UnGzip
 
 ```js
-import Momoa from 'momoa';
-
-const momoa = new Momoa();
 const uncompressed = await momoa.ungzip(BUFFER).end();
-
 console.log(uncompressed);
-
 ```
 
 Output would be:
