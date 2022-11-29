@@ -6,7 +6,7 @@ Operations with JSONs
 ## Usage
 Install the package:
 ```sh
-npm install pushed-sdk
+npm install momoa
 ```
 
 ### Enlist JSON Array
