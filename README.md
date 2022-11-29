@@ -42,7 +42,7 @@ import Momoa from 'momoa';
 // Initialize class with a JSON array
 const momoa = new Momoa([{ test: 1 }, { test: 2 }, { test: 3 }]);
 
-// Output a String with one object per line
+// Output a Buffer of the one object per line string, gzipped
 const gzipped = await momoa.enlist().gzip().end();
 
 console.log(gzipped);
